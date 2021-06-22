@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['namespace' => 'App\Http\Controllers\Auth'], function() {
 
-    Route::group(['middleware' => 'auth:api'], function () {
+    Route::group(['middleware' => ['auth:api'/*, 'api_token:api'*/]], function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
@@ -26,5 +26,6 @@ Route::group(['namespace' => 'App\Http\Controllers\Auth'], function() {
 
     Route::post('register', 'RegisterController@register');
     Route::post('login', 'LoginController@login');
+    Route::post('refresh_token', 'LoginController@refresh_token');
 
 });

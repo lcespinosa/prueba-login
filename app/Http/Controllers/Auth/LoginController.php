@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Action\GetUserSecurityData;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -40,17 +41,14 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function login(Request $request)
+    public function login(Request $request, GetUserSecurityData $action)
     {
         $this->validateLogin($request);
 
         if ($this->attemptLogin($request)) {
             $user = $this->guard()->user();
-            $user->generateToken();
 
-            return response()->json([
-                'data' => $user->toArray(),
-            ]);
+            return response()->json($action->withUser($user)->execute());
         }
         return $this->sendFailedLoginResponse($request);
     }
@@ -60,12 +58,23 @@ class LoginController extends Controller
         $user = Auth::guard('api')->user();
 
         if ($user) {
-            $user->api_token = null;
-            $user->save();
+            $user->token()->revoke();
 
             return response()->json(['data' => 'User logged out.'], 200);
         }
 
         return response()->json(['data' => 'User not logged.'], 404);
+    }
+
+    public function refresh_token(Request $request)
+    {
+        $this->validate($request, [
+            'refresh_token' => 'required'
+        ]);
+
+        $action = new GetUserSecurityData();
+        $newToken = $action->getNewToken($request->refresh_token);
+
+        return response()->json($newToken);
     }
 }

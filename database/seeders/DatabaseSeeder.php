@@ -20,8 +20,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name'  => 'Prueba',
             'email' => 'prueba@test.com',
-            'password'  => bcrypt('secret'),
-            'remember_token'    => Str::random()
+            'password'  => bcrypt('secret')
         ]);
     }
 }

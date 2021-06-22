@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Action\GetUserSecurityData;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -75,8 +75,7 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
-        $user->generateToken();
-
-        return response()->json(['data' => $user->toArray()], 201);
+        $action = new GetUserSecurityData();
+        return response()->json($action->withUser($user)->execute(), 201);
     }
 }
